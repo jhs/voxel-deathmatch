@@ -1,5 +1,5 @@
 var voxel = require('voxel')
-var player = require('voxel-player')
+var voxelPlayer = require('voxel-player')
 var painterly = require('painterly-textures')
 var createGame = require('voxel-engine')
 
@@ -21,10 +21,21 @@ var game = createGame({
 window.game = game // for debugging
 game.appendTo(container)
 
-var createPlayer = player(game)
-var avatar = createPlayer('player.png')
-avatar.possess()
-avatar.yaw.position.set(2, 14, 4)
+var createPlayer = voxelPlayer(game)
+
+var baddie = createPlayer('substack.png')
+baddie.position.set(4,1,4)
+
+var me = createPlayer('player.png')
+me.position.set(-2.5, 1, -2.5)
+me.possess()
+
+window.A = {me:me, s:baddie}
+
+window.addEventListener('keydown', function (ev) {
+  if (ev.keyCode === 'R'.charCodeAt(0))
+    me.toggle()
+})
 
 function generate_world(x, y, z) {
   //return x*x + y*y + z*z <= 15*15 ? 1 : 0 // Sphere
