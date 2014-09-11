@@ -26,9 +26,11 @@ var createPlayer = voxelPlayer(game)
 
 var baddie = createPlayer('substack.png')
 baddie.position.set(4,1,4)
+baddie.rotation.y = Math.PI / 4 // Face the center of the ring
 
 var me = createPlayer('player.png')
 me.position.set(-2.5, 1, -2.5)
+me.rotation.y = Math.PI * 5/4 // Face the center of the ring
 me.possess()
 
 window.A = {me:me, s:baddie}
@@ -46,6 +48,19 @@ game.on('tick', function() {
 window.addEventListener('keydown', function (ev) {
   if (ev.keyCode === 'R'.charCodeAt(0))
     me.toggle()
+
+  else if (ev.keyCode === 'G'.charCodeAt(0)) {
+    console.log('move!')
+    var magnitude = 0.5
+    var dx = -Math.sin(baddie.rotation.y) * magnitude
+    var dz = -Math.cos(baddie.rotation.y) * magnitude
+    baddie.move(dx, 0, dz)
+  }
+
+  else if (ev.keyCode === 'T'.charCodeAt(0))
+    baddie.rotation.y += Math.PI / 8
+  else if (ev.keyCode === 'Y'.charCodeAt(0))
+    baddie.rotation.y -= Math.PI / 8
 })
 
 function generate_world(x, y, z) {
