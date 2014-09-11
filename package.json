@@ -12,5 +12,8 @@
   "devDependencies": {
     "beefy": "^2.1.1",
     "browserify": "^5.11.1"
+  },
+  "dependencies": {
+    "voxel-engine": "^0.20.1"
   }
 }
