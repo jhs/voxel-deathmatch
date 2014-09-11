@@ -1,3 +1,6 @@
+var game = require('voxel-hello-world')
+game.appendTo(document.body)
+/*
 var createGame = require('voxel-engine')
 var painterly = require('painterly-textures')
 
@@ -31,3 +34,4 @@ function generate_world(x, y, z) {
     return 2
   return 0
 }
+*/

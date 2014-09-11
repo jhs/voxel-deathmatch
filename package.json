@@ -11,7 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "beefy": "^2.1.1",
-    "browserify": "^5.11.1"
+    "browserify": "^5.11.1",
+    "voxel-hello-world": "^0.6.0"
   },
   "dependencies": {
     "painterly-textures": "0.0.3",
