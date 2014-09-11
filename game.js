@@ -1,3 +1,4 @@
+var walk = require('voxel-walk')
 var voxel = require('voxel')
 var voxelPlayer = require('voxel-player')
 var painterly = require('painterly-textures')
@@ -31,6 +32,16 @@ me.position.set(-2.5, 1, -2.5)
 me.possess()
 
 window.A = {me:me, s:baddie}
+window.walk = walk
+
+game.on('tick', function() {
+  var target = me
+  walk.render(target.playerSkin)
+  var vx = Math.abs(target.velocity.x)
+  var vz = Math.abs(target.velocity.z)
+  if (vx > 0.001 || vz > 0.001) walk.stopWalking()
+  else walk.startWalking()
+})
 
 window.addEventListener('keydown', function (ev) {
   if (ev.keyCode === 'R'.charCodeAt(0))
