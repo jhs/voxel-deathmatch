@@ -42,12 +42,37 @@ me.position.set(-2.5, 1, -2.5)
 me.rotation.y = Math.PI * 5/4 // Face the center of the ring
 me.possess()
 
+game.on('fire', function(target, state) {
+  console.log('Bang!')
+  var hit = game.raycastVoxels()
+  if (hit) {
+    console.log('  hit')
+    var vec = {x:hit.position[0], y:hit.position[1], z:hit.position[2]}
+    place_bomb(vec)
+  }
+})
+
+function place_bomb(position) {
+  var THREE = game.THREE
+  var geometry = new THREE.SphereGeometry( 0.1, 10, 10 )
+  var material = new THREE.MeshPhongMaterial( { color: 0x000000, shading: THREE.FlatShading } )
+  var mesh = new THREE.Mesh( geometry, material )
+  mesh.position.copy(position)
+  game.scene.add(mesh)
+  game.setTimeout(clear, 3000)
+  function clear() {
+    console.log('Time to clear the bomb')
+    game.scene.remove(mesh)
+  }
+}
+
 window.walk = walk
 window.me = me
 window.s = baddie
+window.ray = require('voxel-engine/node_modules/voxel-raycast')
 
 game.on('tick', function() { walk_tick(me) })
-game.on('tick', function() { walk_tick(baddie) })
+//game.on('tick', function() { walk_tick(baddie) })
 
 function walk_tick(target) {
   walk.render(target.playerSkin)
