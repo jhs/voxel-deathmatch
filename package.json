@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify game.js -o bundle.js",
-    "start": "beefy game.js"
+    "build": "rm -f bundle.js; browserify game.js -o bundle.js",
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",

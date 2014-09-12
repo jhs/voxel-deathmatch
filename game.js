@@ -21,6 +21,11 @@ var game = createGame({
 
 window.game = game // for debugging
 game.appendTo(container)
+game.setTimeout(fix_dimensions, 500)
+function fix_dimensions() {
+  console.log('Fix dimensions')
+  game.setDimensions({container: container})
+}
 
 var createPlayer = voxelPlayer(game)
 
@@ -33,34 +38,33 @@ me.position.set(-2.5, 1, -2.5)
 me.rotation.y = Math.PI * 5/4 // Face the center of the ring
 me.possess()
 
-window.A = {me:me, s:baddie}
-window.walk = walk
+game.on('tick', function() { walk_tick(me) })
+game.on('tick', function() { walk_tick(baddie) })
 
-game.on('tick', function() {
-  var target = me
+function walk_tick(target) {
   walk.render(target.playerSkin)
   var vx = Math.abs(target.velocity.x)
   var vz = Math.abs(target.velocity.z)
   if (vx > 0.001 || vz > 0.001) walk.stopWalking()
   else walk.startWalking()
-})
+}
 
 window.addEventListener('keydown', function (ev) {
   if (ev.keyCode === 'R'.charCodeAt(0))
     me.toggle()
 
-  else if (ev.keyCode === 'G'.charCodeAt(0)) {
-    console.log('move!')
-    var magnitude = 0.5
-    var dx = -Math.sin(baddie.rotation.y) * magnitude
-    var dz = -Math.cos(baddie.rotation.y) * magnitude
-    baddie.move(dx, 0, dz)
-  }
-
-  else if (ev.keyCode === 'T'.charCodeAt(0))
-    baddie.rotation.y += Math.PI / 8
-  else if (ev.keyCode === 'Y'.charCodeAt(0))
-    baddie.rotation.y -= Math.PI / 8
+//  else if (ev.keyCode === 'G'.charCodeAt(0)) {
+//    console.log('move!')
+//    var magnitude = 0.5
+//    var dx = -Math.sin(baddie.rotation.y) * magnitude
+//    var dz = -Math.cos(baddie.rotation.y) * magnitude
+//    baddie.move(dx, 0, dz)
+//  }
+//
+//  else if (ev.keyCode === 'T'.charCodeAt(0))
+//    baddie.rotation.y += Math.PI / 8
+//  else if (ev.keyCode === 'Y'.charCodeAt(0))
+//    baddie.rotation.y -= Math.PI / 8
 })
 
 function generate_world(x, y, z) {
