@@ -1,3 +1,5 @@
+module.exports = start_game
+
 var _ = require('underscore')
 var walk = require('voxel-walk')
 var voxel = require('voxel')
@@ -23,7 +25,6 @@ var game = createGame({
   })
 
 window.game = game // for debugging
-game.appendTo(container)
 
 check_ready()
 function check_ready() {
@@ -169,4 +170,9 @@ function generate_world(x, y, z) {
     return 1
 
   return 0
+}
+
+function start_game() {
+  console.log('Start game')
+  game.appendTo(container)
 }
