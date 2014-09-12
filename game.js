@@ -26,7 +26,7 @@ check_ready()
 function check_ready() {
   if (document.readyState == 'complete') {
     console.log('Ready!')
-    fix_dimensions()
+    //fix_dimensions()
   } else
     setTimeout(check_ready, 50)
 }
@@ -43,10 +43,10 @@ me.rotation.y = Math.PI * 5/4 // Face the center of the ring
 me.possess()
 
 game.on('fire', function(target, state) {
-  console.log('Bang!')
+  console.log('Fire!')
   var hit = game.raycastVoxels()
   if (hit) {
-    console.log('  hit')
+    console.log('Placed a bomb')
     var vec = {x:hit.position[0], y:hit.position[1], z:hit.position[2]}
     place_bomb(vec)
   }
@@ -59,18 +59,50 @@ function place_bomb(position) {
   var mesh = new THREE.Mesh( geometry, material )
   mesh.position.copy(position)
   game.scene.add(mesh)
-  game.setTimeout(clear, 3000)
-  function clear() {
-    console.log('Time to clear the bomb')
-    game.scene.remove(mesh)
+  game.setTimeout(function() { explode_bomb(mesh) }, 3000)
+}
+
+function explode_bomb(bomb) {
+  console.log('BOOM!')
+  window.bomb = bomb // XXX
+  game.scene.remove(bomb)
+  push(me)
+  //push(baddie)
+
+  function push(target) {
+    // Use an inverse-cubed effect, at distance 2 you feel nothing, at distance 0 you feel a lot.
+    var range = distance(bomb.position, target.position)
+    var mag = 1 / (range * range * range)
+    console.log('Effect: ' + mag )
+
+    if (mag < 0.125)
+      return // No magnitude.
+    if (mag > 1)
+      mag = 1
+
+    // Scale the effect for a particular velocity.
+    mag *= 0.1
+    console.log('Magnitude: ' + mag)
+
+    target.velocity.z += mag
+    //target.subjectTo({x:0, y:0.00009, z:0})
   }
+}
+
+window.distance = distance
+function distance(a, b) {
+  var x = a.x - b.x
+  var y = a.y - b.y
+  var z = a.z - b.z
+
+  return Math.sqrt(x*x + y*y + z*z)
 }
 
 window.walk = walk
 window.me = me
 window.s = baddie
-window.ray = require('voxel-engine/node_modules/voxel-raycast')
 
+if(0)
 game.on('tick', function() { walk_tick(me) })
 //game.on('tick', function() { walk_tick(baddie) })
 
@@ -102,10 +134,12 @@ window.addEventListener('keydown', function (ev) {
 })
 
 function generate_world(x, y, z) {
-  //return x*x + y*y + z*z <= 15*15 ? 1 : 0 // Sphere
+  if (y == -20 && x > -20 && x < 20 && z > -20 && z < 20)
+  //if (y == -20)
+    return 2
+
   if (y == 0 && x > -4 && x < 4 && z > -4 && z < 4)
     return 1
-  if (y == -20 && x > -20 && x < 20 && z > -20 && z < 20)
-    return 2
+
   return 0
 }
