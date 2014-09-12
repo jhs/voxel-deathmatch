@@ -1,8 +1,11 @@
+var _ = require('underscore')
 var walk = require('voxel-walk')
 var voxel = require('voxel')
 var voxelPlayer = require('voxel-player')
 var painterly = require('painterly-textures')
 var createGame = require('voxel-engine')
+
+var START = {pos:{x:-2.5, y:1.1, z:-2.5}, y: Math.PI * 5/4 }
 
 var container = document.querySelector('#game')
 var game = createGame({
@@ -59,7 +62,7 @@ function place_bomb(position) {
   var mesh = new THREE.Mesh( geometry, material )
   mesh.position.copy(position)
   game.scene.add(mesh)
-  game.setTimeout(function() { explode_bomb(mesh) }, 3000)
+  game.setTimeout(function() { explode_bomb(mesh) }, 2000)
 }
 
 function explode_bomb(bomb) {
@@ -102,6 +105,26 @@ window.walk = walk
 window.me = me
 window.s = baddie
 
+game.on('tick', _.throttle(rescue_me, 1000))
+var rescuing = false
+function rescue_me() {
+  if (rescuing)
+    return
+  if (me.position.y > -18)
+    return
+
+  console.log('Rescue me')
+  rescuing = true
+  setTimeout(teleport, 2000)
+  function teleport() {
+    rescuing = false
+    me.position.copy(START.pos)
+    me.rotation.y = START.y
+    me.velocity.x = me.velocity.y = me.velocity.z = 0
+    me.velocity.y = 0.05
+  }
+}
+
 if(0)
 game.on('tick', function() { walk_tick(me) })
 //game.on('tick', function() { walk_tick(baddie) })
@@ -133,11 +156,15 @@ window.addEventListener('keydown', function (ev) {
 //    baddie.rotation.y -= Math.PI / 8
 })
 
+var bedrock_size = 40
+var platform_radius = 5
 function generate_world(x, y, z) {
+  //if (y == -20 && x > -bedrock_size && x < bedrock_size && z > -bedrock_size && z < bedrock_size)
   if (y == -20 && x > -20 && x < 20 && z > -20 && z < 20)
-  //if (y == -20)
+  //if (y == -bedrock_size)
     return 2
 
+  //if (y == 0 && x*x + z*z < platform_radius*platform_radius)
   if (y == 0 && x > -4 && x < 4 && z > -4 && z < 4)
     return 1
 
