@@ -21,10 +21,14 @@ var game = createGame({
 
 window.game = game // for debugging
 game.appendTo(container)
-game.setTimeout(fix_dimensions, 500)
-function fix_dimensions() {
-  console.log('Fix dimensions')
-  game.setDimensions({container: container})
+
+check_ready()
+function check_ready() {
+  if (document.readyState == 'complete') {
+    console.log('Ready!')
+    fix_dimensions()
+  } else
+    setTimeout(check_ready, 50)
 }
 
 var createPlayer = voxelPlayer(game)
@@ -37,6 +41,10 @@ var me = createPlayer('player.png')
 me.position.set(-2.5, 1, -2.5)
 me.rotation.y = Math.PI * 5/4 // Face the center of the ring
 me.possess()
+
+window.walk = walk
+window.me = me
+window.s = baddie
 
 game.on('tick', function() { walk_tick(me) })
 game.on('tick', function() { walk_tick(baddie) })
