@@ -7,7 +7,11 @@ var voxelPlayer = require('voxel-player')
 var painterly = require('painterly-textures')
 var createGame = require('voxel-engine')
 
-var START = {pos:{x:-2.5, y:1.1, z:-2.5}, y: Math.PI * 5/4 }
+var ME = null
+var BADDIE = null
+var START = { A: {pos:{x:-2.5, y:1.1, z:-2.5}, y:Math.PI * 5/4}
+            , B: {pos:{x:4   , y:1.1, z:4   }, y:Math.PI / 4  }
+            }
 
 var container = document.querySelector('#game')
 var game = createGame({
@@ -24,27 +28,20 @@ var game = createGame({
     materials: [['grass', 'dirt', 'grass_dirt'], 'bedrock']
   })
 
-window.game = game // for debugging
-
-check_ready()
-function check_ready() {
-  if (document.readyState == 'complete') {
-    console.log('Ready!')
-    //fix_dimensions()
-  } else
-    setTimeout(check_ready, 50)
-}
-
 var createPlayer = voxelPlayer(game)
+window.game = game // for debugging
+game.appendTo(container)
 
-var baddie = createPlayer('substack.png')
-baddie.position.set(4,1,4)
-baddie.rotation.y = Math.PI / 4 // Face the center of the ring
+//check_ready()
+//function check_ready() {
+//  if (document.readyState == 'complete') {
+//    console.log('Ready!')
+//    //fix_dimensions()
+//  } else
+//    setTimeout(check_ready, 50)
+//}
 
-var me = createPlayer('player.png')
-me.position.set(-2.5, 1, -2.5)
-me.rotation.y = Math.PI * 5/4 // Face the center of the ring
-me.possess()
+var baddie, me
 
 game.on('fire', function(target, state) {
   console.log('Fire!')
@@ -93,7 +90,6 @@ function explode_bomb(bomb) {
   }
 }
 
-window.distance = distance
 function distance(a, b) {
   var x = a.x - b.x
   var y = a.y - b.y
@@ -101,10 +97,6 @@ function distance(a, b) {
 
   return Math.sqrt(x*x + y*y + z*z)
 }
-
-window.walk = walk
-window.me = me
-window.s = baddie
 
 game.on('tick', _.throttle(rescue_me, 1000))
 var rescuing = false
@@ -172,7 +164,27 @@ function generate_world(x, y, z) {
   return 0
 }
 
-function start_game() {
-  console.log('Start game')
-  game.appendTo(container)
+function start_game(player) {
+  console.log('Start game: ' + player)
+  if (player == 'A') {
+    ME = 'A'
+    BADDIE = 'B'
+    baddie = createPlayer('substack.png')
+    me = createPlayer('player.png')
+  } else {
+    ME = 'B'
+    BADDIE = 'A'
+    baddie = createPlayer('player.png')
+    me = createPlayer('substack.png')
+  }
+
+  baddie.position.copy(START[BADDIE].pos)
+  baddie.rotation.y = START[BADDIE].y
+
+  me.position.copy(START[ME].pos)
+  me.rotation.y = START[ME].y
+  me.possess()
+
+  window.me = me
+
 }

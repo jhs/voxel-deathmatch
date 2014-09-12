@@ -12,6 +12,9 @@ function on_message(msg) {
   try { msg = JSON.parse(msg.data) }
   catch (er) { return }
 
-  console.log('message')
+  console.log('message:')
   console.log(msg)
+
+  if(msg.start)
+    game(msg.start)
 }
