@@ -13,7 +13,7 @@ var game = createGame({
     //materials: ['#fff', '#000'],
     //materialFlatColor: true,
     //worldOrigin: [0, 0, 0],
-    //controls: { discreteFire: true },
+    controls: { discreteFire: true },
                       // startingPosition: [0, 1000, 0]
     texturePath: painterly(__dirname),
     materials: [['grass', 'dirt', 'grass_dirt'], 'bedrock']
@@ -57,8 +57,9 @@ function walk_tick(target) {
   else walk.startWalking()
 }
 
+var key = { p:'P'.charCodeAt(0) }
 window.addEventListener('keydown', function (ev) {
-  if (ev.keyCode === 'R'.charCodeAt(0))
+  if (ev.keyCode === key.p)
     me.toggle()
 
 //  else if (ev.keyCode === 'G'.charCodeAt(0)) {
