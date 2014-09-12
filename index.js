@@ -13,8 +13,10 @@ function on_message(msg) {
   try { msg = JSON.parse(msg.data) }
   catch (er) { return console.log('Bad JSON message: ' + msg.data)}
 
-  console.log('message:')
-  console.log(msg)
+  if (window.show_msg) {
+    console.log('message:')
+    console.log(msg)
+  }
 
   if(msg.start)
     game(ws, msg.start)

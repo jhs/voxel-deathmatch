@@ -11,8 +11,8 @@ var createGame = require('voxel-engine')
 var SERVER = null
 var ME = null
 var BADDIE = null
-var START = { A: {pos:{x:-2.5, y:1.1, z:-2.5}, y:Math.PI * 5/4}
-            , B: {pos:{x:4   , y:1.1, z:4   }, y:Math.PI / 4  }
+var START = { A: {pos:{x:-2.5, y:1.01, z:-2.5}, y:Math.PI * 5/4}
+            , B: {pos:{x:4   , y:1.01, z:4   }, y:Math.PI / 4  }
             }
 
 var container = document.querySelector('#game')
@@ -102,7 +102,7 @@ function distance(a, b) {
 
 game.on('tick', _.throttle(send_position, 100))
 function send_position() {
-  send({pos: me.position})
+  send({position: me.position, rotation:me.rotation})
 }
 
 game.on('tick', _.throttle(rescue_me, 1000))
@@ -118,8 +118,8 @@ function rescue_me() {
   setTimeout(teleport, 2000)
   function teleport() {
     rescuing = false
-    me.position.copy(START.pos)
-    me.rotation.y = START.y
+    me.position.copy(START[ME].pos)
+    me.rotation.y = START[ME].y
     me.velocity.x = me.velocity.y = me.velocity.z = 0
     me.velocity.y = 0.05
   }
@@ -202,6 +202,7 @@ function send(msg) {
   SERVER.send(JSON.stringify(msg))
 }
 
-function set_baddie(pos) {
-  baddie.position.copy(pos)
+function set_baddie(update) {
+  baddie.position.copy(update.position)
+  baddie.rotation.copy(update.rotation)
 }

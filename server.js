@@ -41,19 +41,21 @@ function start_game(A, B) {
   send(A, {'start': 'A'})
   send(B, {'start': 'B'})
 
-  A.on('message', function(msg) {
-    msg = JSON.parse(msg)
-    console.log('A: %j', msg)
-    if(msg.pos)
-      send(B, {baddie:msg.pos})
-  })
+  A.player = 'A'
+  A.peer = B
+  B.player = 'B'
+  B.peer = A
 
-  B.on('message', function(msg) {
+  A.on('message', function(msg) { on_msg(A, msg) })
+  B.on('message', function(msg) { on_msg(B, msg) })
+
+  function on_msg(sock, msg) {
     msg = JSON.parse(msg)
-    console.log('B: %j', msg)
-    if(msg.pos)
-      send(A, {baddie:msg.pos})
-  })
+    console.log('%s: %j', sock.player, msg)
+
+    if(msg.position)
+      send(sock.peer, {baddie:msg})
+  }
 }
 
 function send(sock, msg) {
