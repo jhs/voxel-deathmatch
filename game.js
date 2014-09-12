@@ -160,7 +160,7 @@ var bedrock_size = 40
 var platform_radius = 5
 function generate_world(x, y, z) {
   //if (y == -20 && x > -bedrock_size && x < bedrock_size && z > -bedrock_size && z < bedrock_size)
-  if (y == -20 && x > -20 && x < 20 && z > -20 && z < 20)
+  if (y == -20 && x > -30 && x < 30 && z > -30 && z < 30)
   //if (y == -bedrock_size)
     return 2
 
