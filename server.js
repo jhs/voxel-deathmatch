@@ -40,11 +40,20 @@ function start_game(A, B) {
   console.log('Start game!')
   send(A, {'start': 'A'})
   send(B, {'start': 'B'})
-//    sock.on('message', function(message) {
-//      console.log('Received: %j', message)
-//    })
-//
-//    sock.send(JSON.stringify('A random number: ' + Math.random()))
+
+  A.on('message', function(msg) {
+    msg = JSON.parse(msg)
+    console.log('A: %j', msg)
+    if(msg.pos)
+      send(B, {baddie:msg.pos})
+  })
+
+  B.on('message', function(msg) {
+    msg = JSON.parse(msg)
+    console.log('B: %j', msg)
+    if(msg.pos)
+      send(A, {baddie:msg.pos})
+  })
 }
 
 function send(sock, msg) {

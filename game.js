@@ -1,4 +1,5 @@
 module.exports = start_game
+module.exports.baddie = set_baddie
 
 var _ = require('underscore')
 var walk = require('voxel-walk')
@@ -7,6 +8,7 @@ var voxelPlayer = require('voxel-player')
 var painterly = require('painterly-textures')
 var createGame = require('voxel-engine')
 
+var SERVER = null
 var ME = null
 var BADDIE = null
 var START = { A: {pos:{x:-2.5, y:1.1, z:-2.5}, y:Math.PI * 5/4}
@@ -98,6 +100,11 @@ function distance(a, b) {
   return Math.sqrt(x*x + y*y + z*z)
 }
 
+game.on('tick', _.throttle(send_position, 100))
+function send_position() {
+  send({pos: me.position})
+}
+
 game.on('tick', _.throttle(rescue_me, 1000))
 var rescuing = false
 function rescue_me() {
@@ -164,8 +171,10 @@ function generate_world(x, y, z) {
   return 0
 }
 
-function start_game(player) {
+function start_game(sock, player) {
   console.log('Start game: ' + player)
+  SERVER = sock
+
   if (player == 'A') {
     ME = 'A'
     BADDIE = 'B'
@@ -187,4 +196,12 @@ function start_game(player) {
 
   window.me = me
 
+}
+
+function send(msg) {
+  SERVER.send(JSON.stringify(msg))
+}
+
+function set_baddie(pos) {
+  baddie.position.copy(pos)
 }
