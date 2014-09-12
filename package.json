@@ -21,6 +21,7 @@
     "voxel": "~0.4.0",
     "voxel-player": "~0.1.0",
     "voxel-walk": "0.0.5",
-    "hapi": "~6.8.1"
+    "hapi": "~6.8.1",
+    "underscore": "~1.7.0"
   }
 }
