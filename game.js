@@ -32,7 +32,7 @@ var game = createGame({
 
 var createPlayer = voxelPlayer(game)
 window.game = game // for debugging
-game.appendTo(container)
+//game.appendTo(container)
 
 //check_ready()
 //function check_ready() {

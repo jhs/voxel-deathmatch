@@ -1,5 +1,5 @@
-var WS = require('ws')
 var Hapi = require("hapi")
+var Primus = require('primus')
 
 var server = new Hapi.Server(9966, "0.0.0.0", {debug:{request:['info']}})
 server.route({ method: 'GET'
@@ -7,14 +7,19 @@ server.route({ method: 'GET'
              , handler: {directory: {path:__dirname}}
              })
 
-server.on('request', log_req)
+//server.on('request', log_req)
 
 server.start(function() {
   console.log("Hapi server started @", server.info.uri)
 
+  var primus = new Primus(server.listener, {transformer:'websockets'})
   //var ws = new WS.Server({server: server.listener})
-  var ws = new WS.Server({port: 9977})
-  ws.on('connection', connection)
+  //var ws = new WS.Server({port: 9977})
+  primus.on('connection', function(cxn) {
+    console.log('Primus connection')
+    cxn.write('Hello, connection')
+  })
+  //ws.on('connection', connection)
 })
 
 function log_req(req) {
