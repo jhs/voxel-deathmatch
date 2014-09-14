@@ -24,6 +24,7 @@
     "hapi": "~6.8.1",
     "underscore": "~1.7.0",
     "ws": "~0.4.32",
-    "cloudant": "~1.0.0-beta2"
+    "cloudant": "~1.0.0-beta2",
+    "primus": "~2.4.6"
   }
 }
