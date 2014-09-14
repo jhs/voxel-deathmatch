@@ -1,19 +1,15 @@
 var game = require('./game.js')
 
 var primus = Primus.connect()
-primus.on('data', on_message)
-primus.on('open', function() { console.log('Connected to server') })
 primus.on('error', function(er) { console.log('Primus error: ' + er.message) })
 primus.on('end', function() { console.log('Primus connection ended') })
 
-function on_message(msg) {
-  console.log(msg)
+primus.on('open', function() {
+  game.connected(primus)
+})
 
-  if(msg.start)
-    game(ws, msg.start)
+primus.on('reconnected', game.reconnected)
 
-  else if(msg.baddie)
-    game.baddie(msg.baddie)
-}
+//game.start('A')
 
-window.primus = primus // for debugging
+//window.primus = primus // for debugging

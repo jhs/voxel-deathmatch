@@ -1,5 +1,6 @@
-module.exports = start_game
-module.exports.baddie = set_baddie
+module.exports.connected = connected
+module.exports.reconnected = reconnected
+module.exports.start = start_game
 
 var _ = require('underscore')
 var walk = require('voxel-walk')
@@ -8,7 +9,12 @@ var voxelPlayer = require('voxel-player')
 var painterly = require('painterly-textures')
 var createGame = require('voxel-engine')
 
-var SERVER = null
+var GAME_ID = window.location.search.match(/\?id=(\w+)/)
+if (GAME_ID)
+  GAME_ID = GAME_ID[1]
+console.log('Game ID: ' + GAME_ID)
+
+var SOCK = null
 var ME = null
 var BADDIE = null
 var START = { A: {pos:{x:-2.5, y:1.01, z:-2.5}, y:Math.PI * 5/4}
@@ -32,7 +38,7 @@ var game = createGame({
 
 var createPlayer = voxelPlayer(game)
 window.game = game // for debugging
-//game.appendTo(container)
+game.appendTo(container)
 
 //check_ready()
 //function check_ready() {
@@ -101,8 +107,16 @@ function distance(a, b) {
 }
 
 game.on('tick', _.throttle(send_position, 100))
+var last_sent_pos = null
 function send_position() {
-  send({position: me.position, rotation:me.rotation})
+  var pos = {position:me.position, rotation:me.rotation, head:me.avatar.head.rotation}
+
+  var msg = JSON.stringify(pos)
+  if(last_sent_pos == msg)
+    return //console.log('Skip dupe position update')
+
+  SOCK.write(pos)
+  last_sent_pos = msg
 }
 
 game.on('tick', _.throttle(rescue_me, 1000))
@@ -171,11 +185,42 @@ function generate_world(x, y, z) {
   return 0
 }
 
-function start_game(sock, player) {
-  console.log('Start game: ' + player)
-  SERVER = sock
+function on_message(msg) {
+  console.log(msg)
 
-  if (player == 'A') {
+  if(msg.name)
+    start_game(msg.name, msg.id)
+
+  else if(msg.baddie)
+    set_baddie(msg.baddie)
+}
+
+function connected(sock) {
+  console.log('Game connected')
+  sock.on('data', on_message)
+  SOCK = sock
+
+  sock.write({id:GAME_ID})
+}
+
+function reconnected() {
+  console.log('Reconnected; send game ID: ' + GAME_ID)
+  SOCK.write({id:GAME_ID})
+}
+
+var is_game_started = false
+function start_game(name, game_id) {
+  console.log('Start game: ' + name)
+
+  if (game_id)
+    GAME_ID = game_id
+
+  if (is_game_started)
+    return console.log('Already started')
+  else
+    is_game_started = true
+
+  if (name == 'A') {
     ME = 'A'
     BADDIE = 'B'
     baddie = createPlayer('substack.png')
@@ -195,14 +240,10 @@ function start_game(sock, player) {
   me.possess()
 
   window.me = me
-
-}
-
-function send(msg) {
-  SERVER.send(JSON.stringify(msg))
 }
 
 function set_baddie(update) {
   baddie.position.copy(update.position)
   baddie.rotation.copy(update.rotation)
+  baddie.avatar.head.rotation.copy(update.head)
 }
