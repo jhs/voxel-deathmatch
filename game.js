@@ -9,6 +9,8 @@ var voxelPlayer = require('voxel-player')
 var painterly = require('painterly-textures')
 var createGame = require('voxel-engine')
 
+var explode_animation = require('./explode.js')
+
 var GAME_ID = window.location.search.match(/\?id=(\w+)/)
 if (GAME_ID)
   GAME_ID = GAME_ID[1]
@@ -17,70 +19,78 @@ console.log('Game ID: ' + GAME_ID)
 var SOCK = null
 var ME = null
 var BADDIE = null
+var baddie, me // player objects
 var START = { A: {pos:{x:-2.5, y:1.01, z:-2.5}, y:Math.PI * 5/4}
             , B: {pos:{x:4   , y:1.01, z:4   }, y:Math.PI / 4  }
             }
 
 var container = document.querySelector('#game')
 var game = createGame({
-    //generate: voxel.generator['Valley'],
     generate: generate_world,
-
-    //chunkDistance: 2,
-    //materials: ['#fff', '#000'],
-    //materialFlatColor: true,
-    //worldOrigin: [0, 0, 0],
     controls: { discreteFire: true },
-                      // startingPosition: [0, 1000, 0]
     texturePath: painterly(__dirname),
     materials: [['grass', 'dirt', 'grass_dirt'], 'bedrock']
   })
 
+var THREE = game.THREE
 var createPlayer = voxelPlayer(game)
 window.game = game // for debugging
 game.appendTo(container)
 
-//check_ready()
-//function check_ready() {
-//  if (document.readyState == 'complete') {
-//    console.log('Ready!')
-//    //fix_dimensions()
-//  } else
-//    setTimeout(check_ready, 50)
-//}
 
-var baddie, me
-
+var rockets = 0
 game.on('fire', function(target, state) {
+  if (rockets >= 1)
+    return console.log('Click')
+
   console.log('Fire!')
-  var hit = game.raycastVoxels()
-  if (hit) {
-    console.log('Placed a bomb')
-    var vec = {x:hit.position[0], y:hit.position[1], z:hit.position[2]}
-    place_bomb(vec)
-  }
+  launch_rocket()
 })
 
-function place_bomb(position) {
-  var THREE = game.THREE
-  var geometry = new THREE.SphereGeometry( 0.1, 10, 10 )
-  var material = new THREE.MeshPhongMaterial( { color: 0x000000, shading: THREE.FlatShading } )
+function launch_rocket() {
+  rockets += 1
+
+  var move_scale = 0.075
+  var fuse_ms = 2000
+  //fuse_ms = 60 * 1000 // XXX
+
+  var here = game.cameraPosition()
+  var geometry = new THREE.SphereGeometry( 0.05, 10, 10 )
+  var material = new THREE.MeshBasicMaterial({color: 0x808080, shading:THREE.NoShading})
   var mesh = new THREE.Mesh( geometry, material )
-  mesh.position.copy(position)
+  mesh.position.x = here[0]
+  mesh.position.y = here[1]
+  mesh.position.z = here[2]
   game.scene.add(mesh)
-  game.setTimeout(function() { explode_bomb(mesh) }, 2000)
+
+  var cam = game.cameraVector()
+  var trajectory = new THREE.Vector3(cam[0], cam[1], cam[2])
+  trajectory.multiplyScalar(0.1)
+
+  var end_interval = game.setInterval(move, 50)
+  function move() {
+    console.log('move')
+    mesh.position.x += trajectory.x
+    mesh.position.y += trajectory.y
+    mesh.position.z += trajectory.z
+  }
+
+  game.setTimeout(function() { explode(mesh, end_interval) }, fuse_ms)
+  window.r = mesh
 }
 
-function explode_bomb(bomb) {
+function explode(rocket, end_interval) {
   console.log('BOOM!')
-  window.bomb = bomb // XXX
-  game.scene.remove(bomb)
-  push(me)
+  end_interval()
+  game.scene.remove(rocket)
+  explode_animation(game, rocket.position)
+  rockets -= 1
+  //push(me)
   //push(baddie)
 
   function push(target) {
     // Use an inverse-cubed effect, at distance 2 you feel nothing, at distance 0 you feel a lot.
-    var range = distance(bomb.position, target.position)
+    var range = distance(rocket.position, target.position)
     var mag = 1 / (range * range * range)
     console.log('Effect: ' + mag )
 
