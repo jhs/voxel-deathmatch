@@ -3,8 +3,10 @@ module.exports.reconnected = reconnected
 module.exports.start = start_game
 
 var _ = require('underscore')
+var THREE = require('voxel-engine/node_modules/three')
 var walk = require('voxel-walk')
 var voxel = require('voxel')
+var voxelView = require('voxel-engine/node_modules/voxel-view')
 var voxelPlayer = require('voxel-player')
 var painterly = require('painterly-textures')
 var createGame = require('voxel-engine')
@@ -25,14 +27,16 @@ var START = { A: {pos:{x:-2.5, y:1.01, z:-2.5}, y:Math.PI * 5/4}
             }
 
 var container = document.querySelector('#game')
+var sky = 0xbedded
+var gameView = new voxelView(THREE, {width:768, height:500, skyColor:sky})
 var game = createGame({
+    view: gameView,
     generate: generate_world,
     controls: { discreteFire: true },
     texturePath: painterly(__dirname),
     materials: [['grass', 'dirt', 'grass_dirt'], 'bedrock']
   })
 
-var THREE = game.THREE
 var createPlayer = voxelPlayer(game)
 window.game = game // for debugging
 game.appendTo(container)
