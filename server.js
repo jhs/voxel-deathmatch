@@ -20,6 +20,7 @@ function log_req(req) {
   console.log(req.url.path)
 }
 
+var scores = {}
 var players = {}
 var odd_player = null // The waiting player for a pairing.
 function connection(sock) {
@@ -85,6 +86,12 @@ function on_msg(player, msg) {
 
   else if (msg.rocket && player.peer)
     player.peer.sock.write(msg)
+
+  else if (msg.rescue && player.peer && player.peer.handle) {
+    scores[player.peer.handle] = 1 + (scores[player.peer.handle] || 0)
+    player.sock.write({scores:scores})
+    player.peer.sock.write({scores:scores})
+  }
 
   else if (msg.handle) {
     player.handle = msg.handle

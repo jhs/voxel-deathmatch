@@ -246,6 +246,18 @@ function on_msg(msg) {
 
   else if (msg.baddie_handle)
     document.querySelector('#baddie_handle').innerHTML = msg.baddie_handle
+
+  else if (msg.scores)
+    show_scores(msg.scores)
+}
+
+function show_scores(scores) {
+  var html = []
+  for (var handle in scores) {
+    html.push(scores[handle] + ' ' + handle + '<br>')
+  }
+
+  document.querySelector('#scores').innerHTML = html.join('')
 }
 
 function connected(sock) {
