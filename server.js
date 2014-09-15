@@ -1,5 +1,6 @@
 var Hapi = require("hapi")
 var Primus = require('primus')
+var Cloudant = require('cloudant')
 
 var server = new Hapi.Server(9966, "0.0.0.0", {debug:{request:['info']}})
 server.route({ method: 'GET'
@@ -7,13 +8,18 @@ server.route({ method: 'GET'
              , handler: {directory: {path:__dirname}}
              })
 
-//server.on('request', log_req)
+Cloudant({account:'jhs', password:process.env.pw}, function(er, cloudant) {
+  if (er)
+    throw er
+  else
+    console.log('Connected to cloudant')
 
-server.start(function() {
-  console.log("Hapi server started @", server.info.uri)
+  server.start(function() {
+    console.log("Hapi server started @", server.info.uri)
 
-  var primus = new Primus(server.listener, {transformer:'websockets'})
-  primus.on('connection', connection)
+    var primus = new Primus(server.listener, {transformer:'websockets'})
+    primus.on('connection', connection)
+  })
 })
 
 function log_req(req) {
