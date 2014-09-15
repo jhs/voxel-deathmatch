@@ -44,24 +44,27 @@ game.on('fire', function(target, state) {
     return console.log('Click')
 
   console.log('Fire!')
-
-  var here = game.cameraPosition()
-  var position = new THREE.Vector3(here[0], here[1], here[2])
-  var cam = game.cameraVector()
-  var trajectory = new THREE.Vector3(cam[0], cam[1], cam[2])
-
-  launch_rocket(position, trajectory)
-})
-
-function launch_rocket(position, trajectory) {
   rockets += 1
 
-  if (SOCK)
-    SOCK.write({rocket: {position:position, angle:trajectory}})
+  var position = game.cameraPosition()
+  var trajectory = game.cameraVector()
 
-  var move_scale = 0.1333
+  if (SOCK)
+    SOCK.write({rocket: {position:position, trajectory:trajectory}})
+
+  launch_rocket(position, trajectory, true)
+})
+
+function launch_rocket(position, trajectory, is_mine) {
+  if (window.D)
+    debugger
+  var move_scale = 0.18
   var fuse_ms = 1500
   //fuse_ms = 60 * 1000 // XXX
+
+  position = new THREE.Vector3(position[0], position[1], position[2])
+  trajectory = new THREE.Vector3(trajectory[0], trajectory[1], trajectory[2])
+  trajectory.multiplyScalar(move_scale)
 
   var geometry = new THREE.SphereGeometry( 0.05, 10, 10 )
   var material = new THREE.MeshBasicMaterial({color: 0x808080, shading:THREE.NoShading})
@@ -69,7 +72,6 @@ function launch_rocket(position, trajectory) {
   mesh.position.copy(position)
   game.scene.add(mesh)
 
-  trajectory.multiplyScalar(move_scale)
 
   var end_interval = game.setInterval(move, 50)
   function move() {
@@ -79,18 +81,19 @@ function launch_rocket(position, trajectory) {
     mesh.position.z += trajectory.z
   }
 
-  game.setTimeout(function() { explode(mesh, end_interval) }, fuse_ms)
-  window.r = mesh
+  game.setTimeout(function() { explode(mesh, end_interval, is_mine) }, fuse_ms)
 }
 
-function explode(rocket, end_interval) {
+function explode(rocket, end_interval, is_mine) {
   console.log('BOOM!')
   end_interval()
   game.scene.remove(rocket)
   explode_animation(game, rocket.position)
-  rockets -= 1
-  //push(me)
-  //push(baddie)
+
+  if (is_mine)
+    rockets -= 1
+
+  push(me)
 
   function push(target) {
     // Use an inverse-cubed effect, at distance 2 you feel nothing, at distance 0 you feel a lot.
@@ -188,7 +191,7 @@ var bedrock_size = 40
 var platform_radius = 5
 function generate_world(x, y, z) {
   //if (y == -20 && x > -bedrock_size && x < bedrock_size && z > -bedrock_size && z < bedrock_size)
-  if (y == -20 && x > -30 && x < 30 && z > -30 && z < 30)
+  if (y == -20 && x > -40 && x < 40 && z > -40 && z < 40)
   //if (y == -bedrock_size)
     return 2
 
@@ -199,7 +202,7 @@ function generate_world(x, y, z) {
   return 0
 }
 
-function on_message(msg) {
+function on_msg(msg) {
   console.log(msg)
 
   if(msg.name)
@@ -207,11 +210,14 @@ function on_message(msg) {
 
   else if(msg.baddie)
     set_baddie(msg.baddie)
+
+  else if(msg.rocket)
+    launch_rocket(msg.rocket.position, msg.rocket.trajectory, false)
 }
 
 function connected(sock) {
   console.log('Game connected')
-  sock.on('data', on_message)
+  sock.on('data', on_msg)
   SOCK = sock
 
   sock.write({id:GAME_ID})
