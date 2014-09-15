@@ -54,7 +54,10 @@ function connection(sock) {
       on_msg(player, msg)
     })
 
-    odd_player = false // XXX
+    // For debugging
+    if (process.env.solo)
+      odd_player = false
+
     if (player.peer)
       return console.log('Player already has a peer: %s', player.id)
 

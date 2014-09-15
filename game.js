@@ -50,8 +50,8 @@ game.on('fire', function(target, state) {
 function launch_rocket() {
   rockets += 1
 
-  var move_scale = 0.075
-  var fuse_ms = 2000
+  var move_scale = 0.100
+  var fuse_ms = 1500
   //fuse_ms = 60 * 1000 // XXX
 
   var here = game.cameraPosition()
@@ -250,6 +250,7 @@ function start_game(name, game_id) {
   me.possess()
 
   window.me = me
+  window.baddie = baddie
 }
 
 function set_baddie(update) {
