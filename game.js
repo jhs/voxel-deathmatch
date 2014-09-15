@@ -44,28 +44,32 @@ game.on('fire', function(target, state) {
     return console.log('Click')
 
   console.log('Fire!')
-  launch_rocket()
+
+  var here = game.cameraPosition()
+  var position = new THREE.Vector3(here[0], here[1], here[2])
+  var cam = game.cameraVector()
+  var trajectory = new THREE.Vector3(cam[0], cam[1], cam[2])
+
+  launch_rocket(position, trajectory)
 })
 
-function launch_rocket() {
+function launch_rocket(position, trajectory) {
   rockets += 1
 
-  var move_scale = 0.100
+  if (SOCK)
+    SOCK.write({rocket: {position:position, angle:trajectory}})
+
+  var move_scale = 0.1333
   var fuse_ms = 1500
   //fuse_ms = 60 * 1000 // XXX
 
-  var here = game.cameraPosition()
   var geometry = new THREE.SphereGeometry( 0.05, 10, 10 )
   var material = new THREE.MeshBasicMaterial({color: 0x808080, shading:THREE.NoShading})
   var mesh = new THREE.Mesh( geometry, material )
-  mesh.position.x = here[0]
-  mesh.position.y = here[1]
-  mesh.position.z = here[2]
+  mesh.position.copy(position)
   game.scene.add(mesh)
 
-  var cam = game.cameraVector()
-  var trajectory = new THREE.Vector3(cam[0], cam[1], cam[2])
-  trajectory.multiplyScalar(0.1)
+  trajectory.multiplyScalar(move_scale)
 
   var end_interval = game.setInterval(move, 50)
   function move() {
