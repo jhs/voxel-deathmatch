@@ -40,7 +40,7 @@ game.appendTo(container)
 
 var rockets = 0
 game.on('fire', function(target, state) {
-  if (rockets >= 1)
+  if (rockets >= 2)
     return console.log('Click')
 
   console.log('Fire!')
