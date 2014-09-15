@@ -126,6 +126,9 @@ function distance(a, b) {
 game.on('tick', _.throttle(send_position, 100))
 var last_sent_pos = null
 function send_position() {
+  if (!me)
+    return
+
   var pos = {position:me.position, rotation:me.rotation, head:me.avatar.head.rotation}
 
   var msg = JSON.stringify(pos)
@@ -149,10 +152,11 @@ function rescue_me() {
   setTimeout(teleport, 2000)
   function teleport() {
     rescuing = false
-    me.position.copy(START[ME].pos)
-    me.rotation.y = START[ME].y
+    var pos = new THREE.Vector3(randReal(-2.5, 2.5), 1.01, randReal(-2.5, 2.5))
+    me.position.copy(pos)
+    me.rotation.y = randReal(0, 2*Math.PI)
     me.velocity.x = me.velocity.y = me.velocity.z = 0
-    me.velocity.y = 0.05
+    //me.velocity.y = 0.05
   }
 }
 
@@ -190,12 +194,19 @@ window.addEventListener('keydown', function (ev) {
 var bedrock_size = 40
 var platform_radius = 5
 function generate_world(x, y, z) {
-  //if (y == -20 && x > -bedrock_size && x < bedrock_size && z > -bedrock_size && z < bedrock_size)
-  if (y == -20 && x > -40 && x < 40 && z > -40 && z < 40)
-  //if (y == -bedrock_size)
+  // Perimeter walls
+  if (y < -15 && y > -20) {
+    if ((z == 40 || z == -40) && (x >= -40 && x <= 40))
+      return 2
+    if ((x == 40 || x == -40) && (z >= -40 && z <= 40))
+      return 2
+  }
+
+  // Bedrock
+  if (y == -20 && x >= -40 && x <= 40 && z >= -40 && z <= 40)
     return 2
 
-  //if (y == 0 && x*x + z*z < platform_radius*platform_radius)
+  // Platform
   if (y == 0 && x > -4 && x < 4 && z > -4 && z < 4)
     return 1
 
@@ -267,4 +278,12 @@ function set_baddie(update) {
   baddie.position.copy(update.position)
   baddie.rotation.copy(update.rotation)
   baddie.avatar.head.rotation.copy(update.head)
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function randReal(min, max) {
+  return Math.random() * (max - min) + min
 }
