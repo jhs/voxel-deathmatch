@@ -127,6 +127,17 @@ function distance(a, b) {
   return Math.sqrt(x*x + y*y + z*z)
 }
 
+var my_handle = null
+game.on('tick', _.throttle(send_handle, 1000))
+function send_handle() {
+  var handle = document.querySelector('#name').value
+  if (handle && handle != my_handle) {
+    my_handle = handle
+    if (SOCK)
+      SOCK.write({handle:handle})
+  }
+}
+
 game.on('tick', _.throttle(send_position, 100))
 var last_sent_pos = null
 function send_position() {
@@ -152,6 +163,9 @@ function rescue_me() {
     return
 
   console.log('Rescue me')
+  if (SOCK)
+    SOCK.write({rescue:true})
+
   rescuing = true
   setTimeout(teleport, 2000)
   function teleport() {
@@ -218,7 +232,8 @@ function generate_world(x, y, z) {
 }
 
 function on_msg(msg) {
-  console.log(msg)
+  if (window.debug_msg)
+    console.log(msg)
 
   if(msg.name)
     start_game(msg.name, msg.id)
@@ -228,6 +243,9 @@ function on_msg(msg) {
 
   else if(msg.rocket)
     launch_rocket(msg.rocket.position, msg.rocket.trajectory, false)
+
+  else if (msg.baddie_handle)
+    document.querySelector('#baddie_handle').innerHTML = msg.baddie_handle
 }
 
 function connected(sock) {

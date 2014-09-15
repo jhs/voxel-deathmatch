@@ -85,6 +85,12 @@ function on_msg(player, msg) {
 
   else if (msg.rocket && player.peer)
     player.peer.sock.write(msg)
+
+  else if (msg.handle) {
+    player.handle = msg.handle
+    if (player.peer)
+      player.peer.sock.write({baddie_handle: msg.handle})
+  }
 }
 
 function connect(A, B) {
