@@ -5,13 +5,19 @@
   <meta charset="utf-8">
   <style>
   #game {
-    width: 1024px;
-    height: 768px;
+    position: fixed;
+    width: 768px;
+    height: 500px;
     border: 1px solid black;
+    margin-left: 0.5em;
 
     -moz-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+  }
+
+  #info {
+    margin-left: 780px;
   }
 
   body {
@@ -23,7 +29,7 @@
   }
 
   #crosshair {
-    position: fixed;
+    position: absolute;
     top: 50%;
     left: 50%;
     margin: -16px 0 0 -16px;
@@ -38,8 +44,12 @@
   </style>
 </head>
 <body>
-  <div id="game"></div>
-  <div id="crosshair"><img src="crosshair.png"/></div>
+  <div id="game">
+    <div id="crosshair"><img src="crosshair.png"/></div>
+  </div>
+  <div id="info">
+    <h1>Cloudant Combat!</h1>
+  </div>
   <script src="/primus/primus.js"></script>
   <script src="bundle.js"></script>
 </body>
