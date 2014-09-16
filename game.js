@@ -79,7 +79,6 @@ function launch_rocket(position, trajectory, is_mine) {
 
   var end_interval = game.setInterval(move, 50)
   function move() {
-    console.log('move')
     mesh.position.x += trajectory.x
     mesh.position.y += trajectory.y
     mesh.position.z += trajectory.z
@@ -103,7 +102,6 @@ function explode(rocket, end_interval, is_mine) {
     // Use an inverse-cubed effect, at distance 2 you feel nothing, at distance 0 you feel a lot.
     var range = distance(rocket.position, target.position)
     var mag = 1 / (range * range * range)
-    console.log('Effect: ' + mag )
 
     if (mag < 0.125)
       return // No magnitude.

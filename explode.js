@@ -31,7 +31,6 @@ function ExplodeAnimation(game, position) {
 }
 
 function make_particles(game, position, color) {
-  console.log('make particles: ' + color)
   var THREE = game.THREE
   var geometry = new THREE.Geometry()
   var dirs = []
