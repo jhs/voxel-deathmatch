@@ -32,6 +32,7 @@ var gameView = new voxelView(THREE, {width:768, height:500, skyColor:sky})
 var game = createGame({
     view: gameView,
     generate: generate_world,
+    statsDisabled: true,
     controls: { discreteFire: true },
     texturePath: painterly(__dirname),
     materials: [['grass', 'dirt', 'grass_dirt'], 'bedrock']
