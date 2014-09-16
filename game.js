@@ -1,6 +1,7 @@
 module.exports.connected = connected
 module.exports.reconnected = reconnected
 module.exports.start = start_game
+module.exports.end = end_game
 
 var _ = require('underscore')
 var THREE = require('voxel-engine/node_modules/three')
@@ -259,6 +260,19 @@ function reconnected() {
 }
 
 var is_game_started = false
+function end_game(reason) {
+  game.destroy()
+
+  var message = document.createElement('h2')
+  message.textContent = 'The game has ended'
+  if (reason)
+    message.textContent += ': ' + reason
+
+  while (container && container.hasChildNodes())
+    container.removeChild(container.lastChild)
+  container.appendChild(message)
+}
+
 function start_game(name, game_id) {
   console.log('Start game: ' + name)
 

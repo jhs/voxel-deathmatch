@@ -6,6 +6,7 @@ primus.on('error', function(er) { console.log('Primus error: ' + er.message) })
 primus.on('end', function() {
   console.log('Primus connection ended; you need to reload now')
   primus.end()
+  game.end('Disconnected from server')
 })
 
 primus.on('open', function() {
