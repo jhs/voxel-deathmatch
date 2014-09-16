@@ -8,11 +8,18 @@ server.route({ method: 'GET'
              , handler: {directory: {path:__dirname}}
              })
 
+var DB
+var scores = {}
 Cloudant({account:'jhs', password:process.env.pw}, function(er, cloudant) {
   if (er)
     throw er
-  else
-    console.log('Connected to cloudant')
+
+  console.log('Connected to cloudant')
+  DB = cloudant.use('deathmatch')
+  DB.list(function(er, docs) {
+    console.log('Docs:')
+    console.log(docs)
+  })
 
   server.start(function() {
     console.log("Hapi server started @", server.info.uri)
@@ -26,7 +33,6 @@ function log_req(req) {
   console.log(req.url.path)
 }
 
-var scores = {}
 var players = {}
 var odd_player = null // The waiting player for a pairing.
 function connection(sock) {
@@ -79,7 +85,7 @@ function connection(sock) {
 }
 
 function on_msg(player, msg) {
-  console.log('Message from %s %s: %j', player.id, player.name, msg)
+  //console.log('Message from %s %s: %j', player.id, player.name, msg)
 
   if (msg.position && msg.rotation && msg.head) {
     player.position = msg.position
@@ -94,9 +100,24 @@ function on_msg(player, msg) {
     player.peer.sock.write(msg)
 
   else if (msg.rescue && player.peer && player.peer.handle) {
-    scores[player.peer.handle] = 1 + (scores[player.peer.handle] || 0)
+    var winner = player.peer.handle
+    scores[winner] = 1 + (scores[winner] || 0)
     player.sock.write({scores:scores})
     player.peer.sock.write({scores:scores})
+
+    DB.get(winner, function(er, doc) {
+      if (er)
+        doc = {}
+
+      doc.points = 1 + (doc.points || 0)
+      DB.insert(doc, winner, function(er, body) {
+        if (er)
+          console.log('Error storing winner '
+                       + winner + ': ' + er.message)
+        console.log('Stored ' + winner
+                    + ' ' + JSON.stringify(body))
+      })
+    })
   }
 
   else if (msg.handle) {
