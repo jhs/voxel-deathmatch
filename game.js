@@ -176,9 +176,7 @@ function rescue_me() {
   }
 }
 
-if(0)
-game.on('tick', function() { walk_tick(me) })
-//game.on('tick', function() { walk_tick(baddie) })
+//game.on('tick', function() { walk_tick(me) })
 
 function walk_tick(target) {
   walk.render(target.playerSkin)
@@ -192,19 +190,6 @@ var key = { p:'P'.charCodeAt(0) }
 window.addEventListener('keydown', function (ev) {
   if (ev.keyCode === key.p)
     me.toggle()
-
-//  else if (ev.keyCode === 'G'.charCodeAt(0)) {
-//    console.log('move!')
-//    var magnitude = 0.5
-//    var dx = -Math.sin(baddie.rotation.y) * magnitude
-//    var dz = -Math.cos(baddie.rotation.y) * magnitude
-//    baddie.move(dx, 0, dz)
-//  }
-//
-//  else if (ev.keyCode === 'T'.charCodeAt(0))
-//    baddie.rotation.y += Math.PI / 8
-//  else if (ev.keyCode === 'Y'.charCodeAt(0))
-//    baddie.rotation.y -= Math.PI / 8
 })
 
 var bedrock_size = 40
