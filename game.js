@@ -252,9 +252,12 @@ function on_msg(msg) {
 }
 
 function show_scores(scores) {
+  if (! Array.isArray(scores))
+    scores = Object.keys(scores).map(function(name) { return {name:name, points:scores[name]} })
+
   var html = []
-  for (var handle in scores) {
-    html.push(scores[handle] + ' ' + handle + '<br>')
+  for (var i = 0; i < scores.length; i++) {
+    html.push(scores[i].points + ' ' + scores[i].name + '<br>')
   }
 
   document.querySelector('#scores').innerHTML = html.join('')

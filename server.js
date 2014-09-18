@@ -19,7 +19,7 @@ var Primus = require('primus')
 var EventEmitter = require('events').EventEmitter
 
 function start_server(scores) {
-  scores = scores || {}
+  scores = scores || []
   var events = new EventEmitter
   var players = {}
   var odd_player = null // The waiting player for a pairing.
@@ -130,7 +130,6 @@ function start_server(scores) {
       var winner = player.peer.handle
       events.emit('point', winner)
 
-      scores[winner] = 1 + (scores[winner] || 0)
       player.sock.write({scores:scores})
       player.peer.sock.write({scores:scores})
     }
