@@ -23,8 +23,13 @@ function start_server(scores) {
   var events = new EventEmitter
   var players = {}
   var odd_player = null // The waiting player for a pairing.
+  var verbose = false
 
   var server = new Hapi.Server(9966, "0.0.0.0", {debug:{request:['info']}})
+  server.route({ method: 'GET'
+               , path: '/verbose'
+               , handler: toggle_verbose
+               })
   server.route({ method: 'GET'
                , path: '/{file*}'
                , handler: {directory: {path:__dirname}}
@@ -39,13 +44,23 @@ function start_server(scores) {
 
   return events
 
+  function toggle_verbose(req, respond) {
+    verbose = !verbose
+    respond({verbose:verbose})
+  }
+
+  function log() {
+    if (verbose)
+      console.log.apply(console, arguments)
+  }
+
   function connection(sock) {
     var remote = sock.address.ip + ':' + sock.address.port + '/' + sock.address.secure
-    console.log('Connection: %s', remote)
+    log('Connection: %s', remote)
 
     sock.on('end', function() {
       if (sock.player && sock.player.name)
-        console.log('Disconnected: %s', sock.player.name)
+        log('Disconnected: %s', sock.player.name)
       if (sock.player && sock.player.peer && sock.player.peer.sock)
         sock.player.peer.sock.end()
     })
@@ -53,14 +68,14 @@ function start_server(scores) {
     sock.on('data', get_id)
     function get_id(msg) {
       if (!('id' in msg))
-        return console.log('Bad message from %s: %j', remote, msg)
+        return log('Bad message from %s: %j', remote, msg)
 
       var id = msg.id || (Math.random() + '').replace(/^0\./, '')
-      console.log('Remote %s claims id: %s', remote, id)
+      log('Remote %s claims id: %s', remote, id)
 
       var player
       if (players[id]) {
-        console.log('Player reconnected: %s', id)
+        log('Player reconnected: %s', id)
         player = players[id]
       } else {
         var name = odd_player ? 'B' : 'A'
@@ -71,7 +86,7 @@ function start_server(scores) {
       sock.player = player
       player.sock = sock
       sock.write({name:player.name, id:player.id})
-      console.log('Player %s: %s', player.name, player.id)
+      log('Player %s: %s', player.name, player.id)
 
       sock.removeListener('data', get_id)
       sock.on('data', function(msg) {
@@ -83,20 +98,21 @@ function start_server(scores) {
         odd_player = false
 
       if (player.peer)
-        return console.log('Player already has a peer: %s', player.id)
+        return log('Player already has a peer: %s', player.id)
 
       else if (odd_player) {
         connect(player, odd_player)
         odd_player = null
       } else {
         odd_player = player
-        console.log('Wait for next player')
+        log('Wait for next player')
       }
     }
   }
 
   function on_msg(player, msg) {
-    //console.log('Message from %s %s: %j', player.id, player.name, msg)
+    if (verbose)
+      log('%s: %j', player.name || player.id, msg)
 
     if (msg.position && msg.rotation && msg.head) {
       player.position = msg.position
@@ -133,7 +149,7 @@ function start_server(scores) {
     A.sock.write({scores:scores})
     B.sock.write({scores:scores})
 
-    console.log('Connected: %s and %s', A.id, B.id)
+    log('Connected: %s and %s', A.id, B.id)
   }
 } // start_server
 
