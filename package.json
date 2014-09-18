@@ -12,12 +12,12 @@
   "keywords": ["voxel", "voxeljs", "multiplayer", "deathmatch"],
   "license": "ISC",
   "devDependencies": {
+    "browserify": "^5.11.1"
+  },
+  "dependencies": {
     "hapi": "~6.8.1",
     "ws": "~0.4.32",
     "primus": "~2.4.6",
-    "browserify": "^5.11.1",
-  },
-  "dependencies": {
     "painterly-textures": "0.0.3",
     "voxel-engine": "^0.20.1",
     "voxel": "~0.4.0",
