@@ -130,30 +130,10 @@ function start_server(scores) {
     A.peer = B
     B.peer = A
 
+    A.sock.write({scores:scores})
+    B.sock.write({scores:scores})
+
     console.log('Connected: %s and %s', A.id, B.id)
-  }
-
-  function start_game(A, B) {
-    console.log('Start game!')
-    throw new Error('Start game not impelment')
-    send(A, {'start': 'A'})
-    send(B, {'start': 'B'})
-
-    A.player = 'A'
-    A.peer = B
-    B.player = 'B'
-    B.peer = A
-
-    A.on('message', function(msg) { on_msg(A, msg) })
-    B.on('message', function(msg) { on_msg(B, msg) })
-
-    function on_msg(sock, msg) {
-      msg = JSON.parse(msg)
-      console.log('%s: %j', sock.player, msg)
-
-      if(msg.position)
-        send(sock.peer, {baddie:msg})
-    }
   }
 } // start_server
 
