@@ -2,7 +2,7 @@
   "name": "voxeljs-demo",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -f bundle.js; browserify --debug index.js -o bundle.js",
