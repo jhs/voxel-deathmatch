@@ -21,20 +21,22 @@ Cloudant({account:'jhs', password:process.env.pw}, function(er, cloudant) {
     var game = start_server(score)
     game.on('point', function(winner) {
       console.log('Point! %s', winner)
+
+      DB.get(winner, function(er, doc, headers) {
+        if (er && er.status_code == 404)
+          doc = {_id:winner}
+        else if (er)
+          return console.log('Get %s: %s', winner, er.message)
+
+        doc.points = 1 + (doc.points || 0)
+
+        DB.insert(doc, doc._id, function(er, body) {
+          if (er)
+            console.log('Put %s: %s', winner, er.message)
+          else
+            console.log('Stored %s: %j', winner, Body)
+        })
+      })
     })
   })
 })
-
-//    DB.get(winner, function(er, doc) {
-//      if (er)
-//        doc = {}
-//
-//      doc.points = 1 + (doc.points || 0)
-//      DB.insert(doc, winner, function(er, body) {
-//        if (er)
-//          console.log('Error storing winner '
-//                       + winner + ': ' + er.message)
-//        console.log('Stored ' + winner
-//                    + ' ' + JSON.stringify(body))
-//      })
-//    })
